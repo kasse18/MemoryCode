@@ -52,7 +52,8 @@ async def process_password(message: types.Message, state: FSMContext):
         # Обновление базы данных
         # update_user_auth_status(user_id=message.from_user.id, login=login, password=password, is_auth=True)  # Пример
 
-        await message.answer("Вы успешно авторизованы!")
+        await message.answer("Вы успешно авторизованы!",
+                             reply_markup=start_kb)
     else:
         await message.answer("Ошибка авторизации. Попробуйте снова.")
 

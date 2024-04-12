@@ -32,7 +32,7 @@ async def change_answer(callback_query: types.CallbackQuery, state: FSMContext):
 
 
 @router.message(StateFilter(None), Command("epitaph"))
-async def cmd_food(message: Message, state: FSMContext):
+async def cmd_epitaph(message: Message, state: FSMContext):
     await message.answer(
         text="Вы начали процесс генерации эпитафии\n\n"
              "После успешной генерации текста вы сможете сгенерировать новый\n\n",
