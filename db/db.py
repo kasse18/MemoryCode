@@ -33,11 +33,17 @@ async def create_data_people():
             cursor.execute(
                 F"""CREATE TABLE {DB_NAME}(
                         id INT,
-                        first_name varchar(100),
-                        last_name varchar(100),
-                        surname varchar(100),
-                        data_born varchar(50),
-                        data_die varchar(50),
+                        name varchar(100),
+                        second_name varchar(100),
+                        patronymic varchar(100),
+                        birth_data varchar(50),
+                        death_data varchar(50),
+                        birth_place varchar(100),
+                        death_place varchar(100),
+                        partner varchar(100),
+                        kind varchar(100),
+                        workplace varchar(100),
+                        awards varchar(100),
                         epitaph varchar(10000),
                         biography_1 varchar(10000),
                         biography_2 varchar(10000),
@@ -102,6 +108,34 @@ async def create_data_quesins():
 
 
 
+async def update_data(data):
+    connection = None
+    try:
+        connection = psycopg2.connect(
+            host=HOST,
+            port=PORT,
+            user=USER,
+            password=PASSWORD,
+            database=DB_NAME
+        )
+        connection.autocommit = True
+
+        with connection.cursor() as cursor:
+            cursor.execute(f"UPDATE {DB_NAME_QUESTIONS} SET {list(data.keys())[1]} = %s WHERE id = %s", [data[list(data.keys())[1]], data["id"]])
+
+        print("[INFO] add info")
+
+    except Exception as _ex:
+        warnings.warn(f"Error: {_ex}")
+        print(_ex)
+        return "error"
+
+    finally:
+        if connection:
+            connection.close()
+
+        return "ok"
+
 
 async def load_data(data):
     connection = None
@@ -116,7 +150,7 @@ async def load_data(data):
         connection.autocommit = True
 
         with connection.cursor() as cursor:
-            cursor.execute(f"INSERT INTO {DB_NAME} (id, name, biography, epitaph) VALUES (%s, %s, %s, %s)", data)
+            cursor.execute(f"INSERT INTO {DB_NAME_QUESTIONS} (id) VALUES (%s)", data)
 
         print("[INFO] add info")
 
@@ -131,7 +165,7 @@ async def load_data(data):
         return "ok"
 
 
-async def load_data_quesions(data):
+async def load_data_people(data):
     connection = None
     try:
         connection = psycopg2.connect(
@@ -192,60 +226,5 @@ async def return_data(id):
         return return_
 
 
-async def put_data(data):
-    connection = None
-    try:
-        connection = psycopg2.connect(
-            host=HOST,
-            port=PORT,
-            user=USER,
-            password=PASSWORD,
-            database=DB_NAME
-        )
-        connection.autocommit = True
-
-        with connection.cursor() as cursor:
-            cursor.execute(f"UPDATE {DB_NAME} SET name = '%s'  WHERE id = %s", data)
-
-        print("[INFO] add info")
-
-    except Exception as _ex:
-        warnings.warn(f"Error: {_ex}")
-        return "error"
-
-    finally:
-        if connection:
-            connection.close()
-
-        return "ok"
-
-
-async def put_data_question(data):
-    connection = None
-    try:
-        connection = psycopg2.connect(
-            host=HOST,
-            port=PORT,
-            user=USER,
-            password=PASSWORD,
-            database=DB_NAME
-        )
-        connection.autocommit = True
-
-        with connection.cursor() as cursor:
-            cursor.execute(f"UPDATE {DB_NAME_QUESTIONS} SET name = '%s'  WHERE id = %s", data)
-
-        print("[INFO] add info")
-
-    except Exception as _ex:
-        warnings.warn(f"Error: {_ex}")
-        return "error"
-
-    finally:
-        if connection:
-            connection.close()
-
-        return "ok"
-
 if __name__ == '__main__':
-    asyncio.run(create_data_people())
+    asyncio.run(create_data_quesins())

@@ -5,8 +5,7 @@ import db
 
 app = FastAPI()
 
-
-class DataPeople(BaseModel):
+class Data_People(BaseModel):
     id: int
     name: str
     biography: str
@@ -22,16 +21,14 @@ class Data(BaseModel):
 class GetID(BaseModel):
     id: int
 
-
 @app.post("/create")
-async def create_data(item: Dict[int, str]):
-    status = await db.load_data(item["id"], item["questions"])
+async def create_new(item: GetID):
+    status = await db.load_data([item.id])
     return {"status": status}
 
-
 @app.post("/add")
-async def add_data(item: Data):
-    status = await db.load_data([item.id, item.name, item.biography, item.epitaph])
+async def add_data(item: Dict[str, str]):
+    status = await db.update_data(item)
     return {"status": status}
 
 
@@ -39,7 +36,6 @@ async def add_data(item: Data):
 async def add_data_people(item: Data):
     status = await db.load_data([item.id, item.name, item.biography, item.epitaph])
     return {"status": status}
-
 
 @app.post("/get")
 async def return_data(item: GetID):
@@ -52,14 +48,3 @@ async def return_data_people(item: GetID):
     status = await db.return_data(item.id)
     return {"data": status}
 
-
-@app.post("/put")
-async def return_data(item: Data):
-    status = await db.return_data(item.id)
-    return {"status": status}
-
-
-@app.post("/put_people")
-async def return_data_people(item: Data):
-    status = await db.return_data(item.id)
-    return {"status": status}
