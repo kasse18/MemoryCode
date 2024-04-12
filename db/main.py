@@ -66,7 +66,7 @@ async def check(item: GetID):
     return {"data": status}
 
 @app.post("/add_user_data")
-async def check(item: Dict):
+async def check_data(item: Dict):
     status = await db.add_data_users(list(item.values()))
 
     return {"data": status}
