@@ -3,7 +3,7 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
 
 from config import config
-from handlers import setup_routers, sender
+from handlers import setup_routers, common, user
 from utils.commands import set_commands
 
 import asyncio
@@ -12,11 +12,12 @@ import logging
 
 async def start_bot(bot: Bot):
     await set_commands(bot)
-    await bot.send_message(config.bot.admin_ids, text='Бот запущен!')
+    # await bot.send_message(config.bot.admin_ids, text='Бот запущен!')
 
 
 async def stop_bot(bot: Bot):
-    await bot.send_message(config.bot.admin_ids, text='Бот остановлен!')
+    print('Stopped')
+    # await bot.send_message(config.bot.admin_ids, text='Бот остановлен!')
 
 
 async def create_pool():
@@ -32,9 +33,9 @@ async def main():
     )
 
     bot = Bot(token=config.bot.token)
-    pool_connect = await create_pool()
-    storage = await asyncpg.connect(pool_connect)
-    dp = Dispatcher(storage=storage, pool_connect=pool_connect)
+    # pool_connect = await create_pool()
+    # storage = await asyncpg.connect(pool_connect)
+    dp = Dispatcher()
 
     # dp.update.message.register(DbSession(pool_connect))
     dp.startup.register(start_bot)
