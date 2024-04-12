@@ -27,10 +27,7 @@ async def create_pool():
 
 
 async def main():
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)'
-    )
+    logging.basicConfig(level=logging.INFO)
 
     bot = Bot(token=config.bot.token)
     # pool_connect = await create_pool()

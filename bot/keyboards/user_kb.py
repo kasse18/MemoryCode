@@ -38,8 +38,18 @@ my_profile_kb = ReplyKeyboardMarkup(keyboard=[
 ])
 
 
+epitaph_kb = ReplyKeyboardMarkup(keyboard=[
+    [
+        KeyboardButton(
+            text='Вернуться в главное меню'
+        )
+    ]
+], resize_keyboard=True, one_time_keyboard=True, input_field_placeholder="Выберите действие")
+
+
 def generate_keyboard():
-    keyboard = InlineKeyboardMarkup()
-    keyboard.add(InlineKeyboardButton("Выбрать другой вопрос", callback_data="choose_question"))
-    keyboard.add(InlineKeyboardButton("Изменить ответ на вопрос", callback_data="change_answer"))
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Выбрать другой вопрос", callback_data="choose_question")],
+        [InlineKeyboardButton(text="Изменить ответ на вопрос", callback_data="change_answer")]
+    ])
     return keyboard
