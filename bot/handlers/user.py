@@ -56,11 +56,13 @@ async def ask_question(message: types.Message, state: FSMContext):
 @router.message(QuestionStates.asking_question)
 async def answer_question(message: types.Message, state: FSMContext):
     await message.answer("Ваш ответ сохранён!")
-    await QuestionStates.waiting_for_question
+    await state.set_state(QuestionStates.waiting_for_question)
+    await ask_question(message, state)
 
 
 @router.callback_query(F.data == 'choose_question', QuestionStates.asking_question)
 async def choose_question(call: CallbackQuery, state: FSMContext):
     await call.answer()
-    await QuestionStates.waiting_for_question
+    await state.set_state(QuestionStates.waiting_for_question)
+    await call.message.delete()
     await ask_question(call.message, state)

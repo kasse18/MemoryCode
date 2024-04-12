@@ -19,7 +19,7 @@ async def cmd_start(message: Message, state: FSMContext):
     if not is_authenticated:
         await message.answer("Вы не авторизованы.\n\nВведите ваш логин.")
 
-        await LoginState.login.set()
+        await state.set_state(LoginState.login)
     else:
         await message.answer(
             "Добро пожаловать в бота проекта Код Памяти!\nС помощью данного бота вы отредактировать страницу памяти, "
@@ -35,7 +35,7 @@ async def process_login(message: types.Message, state: FSMContext):
     await state.update_data(login=message.text)
     await message.answer("Теперь введите ваш пароль.")
 
-    await LoginState.password.set()
+    await state.set_state(LoginState.password)
 
 
 @router.message(LoginState.password)
