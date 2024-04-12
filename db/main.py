@@ -33,8 +33,8 @@ async def add_data(item: Dict[str, str]):
 
 
 @app.post("/add_people")
-async def add_data_people(item: Data):
-    status = await db.load_data([item.id, item.name, item.biography, item.epitaph])
+async def add_data_people(item: Dict[int, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str]):
+    status = await db.load_data_people(item)
     return {"status": status}
 
 @app.post("/get")
@@ -45,6 +45,6 @@ async def return_data(item: GetID):
 
 @app.post("/get_people")
 async def return_data_people(item: GetID):
-    status = await db.return_data(item.id)
+    status = await db.return_data_people(item.id)
     return {"data": status}
 
