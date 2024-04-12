@@ -281,7 +281,7 @@ async def update_data_people(data):
         with connection.cursor() as cursor:
             print(data, list(data.keys())[1:], [data["id"]])
             data["id"] = str(data["id"])
-            cursor.execute(f"UPDATE {DB_NAME} SET {" ".join([ f"{i} = %s," for i in list(data.keys())[1:]])} WHERE id = %s", list(data.keys())[1:] + [data["id"]])
+            cursor.execute(f"UPDATE {DB_NAME} SET {", ".join([ f"{i} = %s" for i in list(data.keys())[1:]])} WHERE id = %s", list(data.values())[1:] + [data["id"]])
 
         print("[INFO] add info")
 
