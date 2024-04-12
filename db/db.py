@@ -157,7 +157,7 @@ async def load_data_users(data):
         connection.autocommit = True
 
         with connection.cursor() as cursor:
-            cursor.execute(f"INSERT INTO {DB_NAME_USERS} (id) VALUES (%s)", data)
+            cursor.execute(f"INSERT INTO {DB_NAME_USERS} (id) VALUES (%s)", [data])
 
         print("[INFO] add info")
 
@@ -197,6 +197,46 @@ async def add_data_users(data):
             connection.close()
 
         return "ok"
+
+async def check_data(data):
+    connection = None
+    try:
+        connection = psycopg2.connect(
+            host=HOST,
+            port=PORT,
+            user=USER,
+            password=PASSWORD,
+            database=DB_NAME
+        )
+        connection.autocommit = True
+
+        with connection.cursor() as cursor:
+            cursor.execute(f"SELECT * FROM {DB_NAME_USERS} WHERE id = %s", [data])
+
+            print(cursor.rowcount)
+
+            if cursor.rowcount == 0:
+                if connection:
+                    connection.close()
+
+                return "false"
+            else:
+                a = cursor.fetchone()
+                print(f"ID {a}")
+                if a[-1]:
+                    return "true"
+                else:
+                    return "false"
+
+
+    except Exception as _ex:
+        warnings.warn(f"Error: {_ex}")
+        return "error"
+
+    finally:
+        if connection:
+            connection.close()
+
 
 async def update_data(data):
     connection = None

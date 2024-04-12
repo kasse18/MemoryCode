@@ -53,3 +53,20 @@ async def return_data_people(item: GetID):
     status = await db.return_data_people(item.id)
     return {"data": status}
 
+
+@app.post("/check")
+async def check(item: GetID):
+    status = await db.check_data(item.id)
+    if status == "false":
+        status = await db.load_data_users(item.id)
+
+    if status == "ok":
+        status = "false"
+
+    return {"data": status}
+
+@app.post("/add_user_data")
+async def check(item: Dict):
+    status = await db.add_data_users(list(item.values()))
+
+    return {"data": status}
