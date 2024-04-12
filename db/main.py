@@ -5,8 +5,7 @@ import db
 
 app = FastAPI()
 
-
-class DataPeople(BaseModel):
+class Data_People(BaseModel):
     id: int
     name: str
     biography: str
@@ -19,16 +18,13 @@ class Data(BaseModel):
     biography: str
     epitaph: str
 
-
 class GetID(BaseModel):
     id: int
-
 
 @app.post("/create")
 async def create_new(item: GetID):
     status = await db.load_data([item.id])
     return {"status": status}
-
 
 @app.post("/add")
 async def add_data(item: Dict[str, str]):
@@ -41,12 +37,10 @@ async def create_data_people(item: Dict): # [int, str, str, str, str, str, str, 
     status = await db.load_data_people(item)
     return {"status": status}
 
-
 @app.post("/add_people")
 async def add_data_people(item: Dict):
     status = await db.update_data_people(item)
     return {"status": status}
-
 
 @app.post("/get")
 async def return_data(item: GetID):
@@ -70,7 +64,6 @@ async def check(item: GetID):
         status = "false"
 
     return {"data": status}
-
 
 @app.post("/add_user_data")
 async def check_data(item: Dict):

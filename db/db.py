@@ -171,7 +171,6 @@ async def load_data_users(data):
 
         return "ok"
 
-
 async def add_data_users(data):
     connection = None
     try:
@@ -198,7 +197,6 @@ async def add_data_users(data):
             connection.close()
 
         return "ok"
-
 
 async def check_data(data):
     connection = None
@@ -281,7 +279,9 @@ async def update_data_people(data):
         connection.autocommit = True
 
         with connection.cursor() as cursor:
-            cursor.execute(f"UPDATE {DB_NAME} SET {" ".join([ f"{i} = %s" for i in list(data.keys())[1:]])} WHERE id = %s", [data[list(data.keys())[1:]], data["id"]])
+            print(data, list(data.keys())[1:], [data["id"]])
+            data["id"] = str(data["id"])
+            cursor.execute(f"UPDATE {DB_NAME} SET {" ".join([ f"{i} = %s," for i in list(data.keys())[1:]])} WHERE id = %s", list(data.keys())[1:] + [data["id"]])
 
         print("[INFO] add info")
 
