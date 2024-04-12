@@ -26,9 +26,9 @@ async def add_user_question(user_id, question):
 
 @router.callback_query(F.data == 'change_answer')
 # state=QuestionStates.waiting_for_question
-async def change_answer(callback_query: types.CallbackQuery, state: FSMContext):
-    await callback_query.answer()
-    await ask_question(callback_query.message, state)
+async def change_answer(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    await ask_question(call.message, state)
 
 
 @router.message(StateFilter(None), Command("epitaph"))
@@ -43,7 +43,7 @@ async def cmd_epitaph(message: Message, state: FSMContext):
 
 
 @router.message(QuestionStates.waiting_for_question)
-async def ask_question(message: types.Message, state: FSMContext):
+async def ask_question(message: Message, state: FSMContext):
     random_question = await get_random_question()
     user_id = message.from_user.id
 
@@ -54,7 +54,7 @@ async def ask_question(message: types.Message, state: FSMContext):
 
 
 @router.message(QuestionStates.asking_question)
-async def answer_question(message: types.Message, state: FSMContext):
+async def answer_question(message: Message, state: FSMContext):
     await message.answer("Ваш ответ сохранён!")
     await state.set_state(QuestionStates.waiting_for_question)
     await ask_question(message, state)

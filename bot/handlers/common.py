@@ -31,7 +31,7 @@ async def cmd_start(message: Message, state: FSMContext):
 
 
 @router.message(LoginState.login)
-async def process_login(message: types.Message, state: FSMContext):
+async def process_login(message: Message, state: FSMContext):
     await state.update_data(login=message.text)
     await message.answer("Теперь введите ваш пароль.")
 
@@ -39,7 +39,7 @@ async def process_login(message: types.Message, state: FSMContext):
 
 
 @router.message(LoginState.password)
-async def process_password(message: types.Message, state: FSMContext):
+async def process_password(message: Message, state: FSMContext):
     # Получаем данные из состояния
     data = await state.get_data()
     login = data.get('login')
