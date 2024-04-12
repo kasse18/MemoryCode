@@ -171,6 +171,7 @@ async def load_data_users(data):
 
         return "ok"
 
+
 async def add_data_users(data):
     connection = None
     try:
@@ -197,6 +198,7 @@ async def add_data_users(data):
             connection.close()
 
         return "ok"
+
 
 async def check_data(data):
     connection = None

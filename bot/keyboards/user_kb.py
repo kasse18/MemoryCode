@@ -50,6 +50,7 @@ epitaph_kb = ReplyKeyboardMarkup(keyboard=[
 def generate_keyboard():
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Выбрать другой вопрос", callback_data="choose_question")],
-        [InlineKeyboardButton(text="Изменить ответ на вопрос", callback_data="change_answer")]
+        [InlineKeyboardButton(text="В главное меню", callback_data="main_menu")]
+        # [InlineKeyboardButton(text="Изменить ответ на вопрос", callback_data="change_answer")]
     ])
     return keyboard

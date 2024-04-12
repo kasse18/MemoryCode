@@ -25,11 +25,11 @@ async def add_user_question(user_id, question):
     return 0
 
 
-@router.callback_query(F.data == 'change_answer')
-# state=QuestionStates.waiting_for_question
-async def change_answer(call: CallbackQuery, state: FSMContext):
-    await call.answer()
-    await ask_question(call.message, state)
+# @router.callback_query(F.data == 'change_answer')
+# # state=QuestionStates.waiting_for_question
+# async def change_answer(call: CallbackQuery, state: FSMContext):
+#     await call.answer()
+#     await ask_question(call.message, state)
 
 
 @router.message((F.text == 'Сгенерировать эпитафию'), StateFilter(None))
@@ -37,8 +37,7 @@ async def change_answer(call: CallbackQuery, state: FSMContext):
 async def cmd_epitaph(message: Message, state: FSMContext):
     await message.answer(
         text="Вы начали процесс генерации эпитафии\n\n"
-             "После успешной генерации текста вы сможете сгенерировать новый\n\n",
-        reply_markup=epitaph_kb
+             "После успешной генерации текста вы сможете сгенерировать новый\n\n"
     )
     await state.set_state(QuestionStates.waiting_for_question)
     await state.update_data(answers_count=0)
@@ -79,3 +78,13 @@ async def choose_question(call: CallbackQuery, state: FSMContext):
     await state.set_state(QuestionStates.waiting_for_question)
     await call.message.delete()
     await ask_question(call.message, state)
+
+
+@router.callback_query(F.data == 'main_menu')
+async def main_menu(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    await state.clear()
+    await call.message.answer(
+        "Вы вернулись в главное меню.",
+        reply_markup=start_kb, disable_web_page_preview=True
+    )
