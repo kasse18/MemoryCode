@@ -15,15 +15,15 @@ async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
 
     is_authenticated = await check_auth(message.from_user.id)
-
+    await message.answer(
+        "Добро пожаловать в бота проекта Код Памяти!\nС помощью данного бота вы отредактировать страницу памяти, "
+        "а также сгенерировать эпитафию и/или биографию для страницы памяти.\n\n")
     if not is_authenticated:
         await message.answer("Вы не авторизованы.\n\nВведите ваш логин.")
 
         await state.set_state(LoginState.login)
     else:
         await message.answer(
-            "Добро пожаловать в бота проекта Код Памяти!\nС помощью данного бота вы отредактировать страницу памяти, "
-            "а также сгенерировать эпитафию и/или биографию для страницы памяти.\n"
             "Выберите действие!",
             reply_markup=start_kb,
             resize_keyboard=ReplyKeyboardRemove()
@@ -63,7 +63,7 @@ async def process_password(message: Message, state: FSMContext):
 async def check_auth(user_id):
     # Здесь должна быть логика для проверки авторизации через API
 
-    return False
+    return True
 
 
 # Функция для аутентификации пользователя через API
@@ -74,7 +74,7 @@ async def authenticate_user(login, password):
 
 
 @router.message(StateFilter(None), Command(commands=["cancel"]))
-@router.message(default_state, F.text.lower() == "Главное меню")
+@router.message(default_state, F.text.lower() == "главное меню")
 async def cmd_cancel_no_state(message: Message, state: FSMContext):
     # Стейт сбрасывать не нужно, удалим только данные
     await state.set_data({})
@@ -85,10 +85,20 @@ async def cmd_cancel_no_state(message: Message, state: FSMContext):
 
 
 @router.message(Command(commands=["cancel"]))
-@router.message(F.text.lower() == "Главное меню")
+@router.message(F.text.lower() == "главное меню")
 async def cmd_cancel(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
         text="Выберите действие",
         reply_markup=ReplyKeyboardRemove()
+    )
+
+
+@router.message(Command(commands=["info"]))
+@router.message(F.text.lower() == "информация")
+async def cmd_info(message: Message, state: FSMContext):
+    await message.answer(
+        text="Данный бот создан для бла-бла-бла",
+        reply_markup=start_kb,
+        resize_keyboard=ReplyKeyboardRemove()
     )
