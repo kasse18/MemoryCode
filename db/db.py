@@ -179,8 +179,8 @@ async def load_data_people(data):
 
         with connection.cursor() as cursor:
             cursor.execute(
-                f"INSERT INTO {DB_NAME_QUESTIONS} (id, question_1, question_2, question_3, question_4, question_5, question_6, question_7, question_8, question_9, question_10) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                data)
+                f"INSERT INTO {DB_NAME_QUESTIONS} ({", ".join(list(data.keys()))}) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                list(data.value()))
 
         print("[INFO] add info")
 
@@ -196,6 +196,37 @@ async def load_data_people(data):
 
 
 async def return_data(id):
+    connection = None
+    return_ = ""
+
+    try:
+        connection = psycopg2.connect(
+            host=HOST,
+            port=PORT,
+            user=USER,
+            password=PASSWORD,
+            database=DB_NAME
+        )
+        connection.autocommit = True
+
+        with connection.cursor() as cursor:
+            cursor.execute(f"SELECT * FROM {DB_NAME_QUESTIONS} WHERE id = %s", str(id))
+
+            return_ = cursor.fetchone()
+            print("Id: {}".format(return_))
+
+    except Exception as _ex:
+        warnings.warn(f"Error: {_ex}")
+        return "error"
+
+    finally:
+        if connection:
+            connection.close()
+
+        return return_
+
+
+async def return_data_people(id):
     connection = None
     return_ = ""
 
