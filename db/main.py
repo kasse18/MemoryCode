@@ -32,9 +32,14 @@ async def add_data(item: Dict[str, str]):
     return {"status": status}
 
 
-@app.post("/add_people")
-async def add_data_people(item: Dict[int, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str]):
+@app.post("/create_people")
+async def create_data_people(item: Dict): # [int, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str, str]
     status = await db.load_data_people(item)
+    return {"status": status}
+
+@app.post("/add_people")
+async def add_data_people(item: Dict):
+    status = await db.update_data_people(item)
     return {"status": status}
 
 @app.post("/get")
