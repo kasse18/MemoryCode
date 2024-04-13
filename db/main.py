@@ -75,7 +75,7 @@ async def check_data(item: Dict):
     else:
         status = await db.add_data_users(list(item.values()))
 
-    return {"data": status}
+    return {"data": temp["access_token"]}
 
 
 # -----API-----
@@ -84,6 +84,8 @@ async def check_data(item: Dict):
 async def log_in(item: Dict):
     data = await api.log_in(item)
     return data
+
+
 
 
 
