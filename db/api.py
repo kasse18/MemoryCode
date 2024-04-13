@@ -27,8 +27,6 @@ async def log_in(data):
         return {"status": "error"}
 
 
-async def search_sp(data):
-    pass
 
 
 if __name__ == '__main__':

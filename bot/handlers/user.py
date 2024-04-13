@@ -63,7 +63,7 @@ async def answer_question(message: Message, state: FSMContext):
     print(data['answers_count'])
     data['answers_count'] += 1
     await state.set_data(data)
-    if data['answers_count'] >= 10:
+    if data['answers_count'] >= 8:
         await message.answer("Вы ответили на все вопросы!")
         await state.clear()
     else:

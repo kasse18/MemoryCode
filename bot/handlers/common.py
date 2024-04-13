@@ -3,7 +3,7 @@ from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
 from aiogram.types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, CallbackQuery
-
+import requests
 from bot.keyboards.user_kb import start_kb
 from bot.states.userstate import LoginState
 
@@ -40,13 +40,10 @@ async def process_login(message: Message, state: FSMContext):
 
 @router.message(LoginState.password)
 async def process_password(message: Message, state: FSMContext):
-    # Получаем данные из состояния
     data = await state.get_data()
     login = data.get('login')
     password = message.text
-
-    # Проверка авторизации через API
-    is_authenticated = await authenticate_user(login, password)
+    is_authenticated = await authenticate_user(message.from_user.id, login, password)
 
     if is_authenticated:
         # Обновление базы данных
@@ -61,16 +58,32 @@ async def process_password(message: Message, state: FSMContext):
 
 
 async def check_auth(user_id):
-    # Здесь должна быть логика для проверки авторизации через API
+    url = 'http://127.0.0.1:8000/check'
 
+    data = {
+        'id': user_id,
+    }
+
+    response = requests.post(url, json=data)
+
+    if response.json()['data'] == 'error':
+        return False
     return True
 
 
 # Функция для аутентификации пользователя через API
-async def authenticate_user(login, password):
-    # Здесь должна быть логика для аутентификации пользователя через API
+async def authenticate_user(user_id, login, password):
+    url = 'http://127.0.0.1:8000/log_in'
 
-    return True
+    data = {
+        'id': user_id,
+        "login": login,
+        "password": password
+    }
+
+    response = requests.post(url, json=data)
+
+    return response.json()['status'] == 'error'
 
 
 @router.message(StateFilter(None), Command(commands=["cancel"]))
