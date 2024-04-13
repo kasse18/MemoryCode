@@ -85,6 +85,46 @@ class Prompt:
             epitaphies.append(response.json()['result']['alternatives'][0]['message']['text'])
 
         return epitaphies
+
+    def change_epitaphy(self, biography:str, personal_data:dict):
+
+        epitaphies = []
+
+        for temperature in [0.3, 0.6, 0.9]:
+
+            prompt_for_generate_epitaphy = {
+                "modelUri": f"gpt://{FOLDER_ID}/yandexgpt-pro/latest",
+                "completionOptions": {
+                    "stream": False,
+                    "temperature": temperature,
+                    "maxTokens": "2000"
+                    }, 
+                "messages": [
+                    {
+                        "role": "system",
+                        'text': 'данный текст - личные данные некоторого человека. твоя задача - суммаризировать этот текст и составить на его основе очень трогательную эпитафию, \
+                            используя большее количество эпитетов.\
+                            В ответе не форматируй текст. Ответ должен содержать ТОЛЬКО эпитафию. Так, чтобы твой ответ можно было сразу высечь на могильном камне.'
+                    }, 
+                    {
+                        "role": "user",
+                        'text':'Персональная данные' + ''.join([f"{i[0]} {i[1]}." for i in personal_data.items()]) + f'Биография - {biography}'
+                    }, 
+                ]
+            }
+        
+            url = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Api-Key {API_KEY}"
+            }
+
+            response = requests.post(url, headers=headers, json=prompt_for_generate_epitaphy)
+            epitaphies.append(response.json()['result']['alternatives'][0]['message']['text'])
+
+        return epitaphies
+
+
  
 prptpr = Prompt()
  
