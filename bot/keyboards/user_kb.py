@@ -59,6 +59,14 @@ def generate_keyboard():
         # [InlineKeyboardButton(text=questions[2], callback_data=f"q_{questions[2]}")],
         [InlineKeyboardButton(text="Заменить вопрос", callback_data="choose_question")],
         [InlineKeyboardButton(text="В главное меню", callback_data="main_menu")]
-        # [InlineKeyboardButton(text="Изменить ответ на вопрос", callback_data="change_answer")]
+    ])
+    return keyboard
+
+
+def new_epitaph_kb():
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Да", callback_data="epitaph_yes")],
+        [InlineKeyboardButton(text="Нет", callback_data="epitaph_no")],
+        [InlineKeyboardButton(text="В главное меню", callback_data="main_menu")]
     ])
     return keyboard

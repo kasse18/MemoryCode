@@ -19,7 +19,8 @@ async def cmd_start(message: Message, state: FSMContext):
             "Добро пожаловать в бота проекта Код Памяти!\nС помощью данного бота вы отредактировать страницу памяти, "
             "а также сгенерировать эпитафию и/или биографию для страницы памяти.\n\n")
     if not is_authenticated:
-        await message.answer("Вы не авторизованы.\n\nДля входа в аккаунт введите ваш EMAIL")
+        await message.answer("Вы не авторизованы.\n\nДля входа в аккаунт Введите вашу электронную почту\n\n"
+                             "Для теста: `team57@hackathon.ru`")
 
         await state.set_state(LoginState.login)
     else:
@@ -33,7 +34,8 @@ async def cmd_start(message: Message, state: FSMContext):
 @router.message(LoginState.login)
 async def process_login(message: Message, state: FSMContext):
     await state.update_data(login=message.text)
-    await message.answer("Теперь введите ваш пароль.")
+    await message.answer("Теперь введите ваш пароль.\n\n"
+                         "Для теста: `r3q4rLth`")
 
     await state.set_state(LoginState.password)
 
@@ -53,7 +55,8 @@ async def process_password(message: Message, state: FSMContext):
                              reply_markup=start_kb)
         await state.clear()
     else:
-        await message.answer("Ошибка авторизации. Попробуйте снова.\n\nВведите ваш EMAIL")
+        await message.answer("Ошибка авторизации. Попробуйте снова.\n\nВведите вашу электронную почту\n\n"
+                             "Для теста: `team57@hackathon.ru`")
         await state.set_state(LoginState.login)
         # await process_login(message, state)
 

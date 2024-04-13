@@ -7,7 +7,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, CallbackQuery, callback_query
 
 from bot.database import db
-from bot.keyboards.user_kb import start_kb, generate_keyboard, epitaph_kb
+from bot.keyboards.user_kb import start_kb, generate_keyboard, epitaph_kb, new_epitaph_kb
 from bot.states.userstate import InfoState, QuestionStates, LoginState
 from parse_yandex_gpt import Prompt
 
@@ -68,6 +68,7 @@ async def cmd_epitaph(message: Message, state: FSMContext):
     await state.set_state(QuestionStates.waiting_for_question)
     await state.update_data(answers_count=0)
     await state.update_data(rand='')
+    await state.update_data(biography='')
     await ask_question(message, state)
 
 
@@ -114,12 +115,43 @@ async def answer_question(message: Message, state: FSMContext):
         print(biography)
         await message.answer("Биография сгенерирована!\n\n"
                              f"{biography}")
-
-        await state.clear()
+        await message.answer('Хотите сгенерировать эпитафию на основе биографии?', reply_markup=new_epitaph_kb())
+        data = await state.get_data()
+        data['biography'] = biography
+        await state.set_data(data)
     else:
         await state.set_state(QuestionStates.asking_question)
         await message.answer("Ответ принят, ожидайте следующий вопрос.")
         await ask_question(message, state)
+
+
+@router.callback_query(F.data == 'epitaph_yes')
+async def main_menu(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    data = await state.get_data()
+    biography = data['biography']
+    personal_data = data['fullinfo']
+    prompt = Prompt()
+    new_epitaph = prompt.change_epitaphy(biography, personal_data)
+    await call.message.answer(
+        "Отлично! Сейчас сгенерирую!",
+        disable_web_page_preview=True
+    )
+    await call.message.answer("Я готов предложить вам 3 варианта эпитафии, основанные на основной информации\n"
+                             "После генерации биографии, вы сможете сгенерировать улучшенную версию эпитафии\n\n"
+                             f"1️⃣\n{new_epitaph[0]}\n\n2️⃣\n{new_epitaph[1]}\n\n3️⃣\n{new_epitaph[2]}",
+                              reply_markup=start_kb, disable_web_page_preview=True)
+    await state.clear()
+
+
+@router.callback_query(F.data == 'epitaph_no')
+async def main_menu(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    await state.clear()
+    await call.message.answer(
+        "Хорошо!",
+        reply_markup=start_kb, disable_web_page_preview=True
+    )
 
 
 @router.callback_query(F.data == 'choose_question', QuestionStates.asking_question)
