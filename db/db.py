@@ -289,7 +289,7 @@ async def update_data(data):
 
         with connection.cursor() as cursor:
             cursor.execute(f"UPDATE {DB_NAME_QUESTIONS} SET {list(data.keys())[1]} = %s WHERE id = %s",
-                           [data[list(data.keys())[1]], data["id"]])
+                           [data[list(data.keys())[1]], str(data["id"])])
 
         print("[INFO] add info")
 

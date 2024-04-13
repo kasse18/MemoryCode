@@ -28,7 +28,7 @@ async def create_new(item: GetID):
     return {"status": status}
 
 @app.post("/add")
-async def add_data(item: Dict[str, str]):
+async def add_data(item: Dict[int, str]):
     status = await db.update_data(item)
     return {"status": status}
 
@@ -64,7 +64,7 @@ async def check(item: GetID):
     if status == "ok":
         status = "false"
 
-    return {"data": status}
+    return {"status": status}
 
 @app.post("/add_user_data")
 async def check_data(item: Dict):
