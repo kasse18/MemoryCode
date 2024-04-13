@@ -6,20 +6,20 @@ from aiogram.types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, Cal
 import requests
 from bot.keyboards.user_kb import start_kb
 from bot.states.userstate import LoginState
+from db import api
 
 router = Router()
 
 
 @router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
-    await state.clear()
-
     is_authenticated = await check_auth(message.from_user.id)
-    await message.answer(
-        "Добро пожаловать в бота проекта Код Памяти!\nС помощью данного бота вы отредактировать страницу памяти, "
-        "а также сгенерировать эпитафию и/или биографию для страницы памяти.\n\n")
+    if message.text == '/start':
+        await message.answer(
+            "Добро пожаловать в бота проекта Код Памяти!\nС помощью данного бота вы отредактировать страницу памяти, "
+            "а также сгенерировать эпитафию и/или биографию для страницы памяти.\n\n")
     if not is_authenticated:
-        await message.answer("Вы не авторизованы.\n\nВведите ваш логин.")
+        await message.answer("Вы не авторизованы.\n\nДля входа в аккаунт введите ваш EMAIL")
 
         await state.set_state(LoginState.login)
     else:
@@ -51,39 +51,51 @@ async def process_password(message: Message, state: FSMContext):
 
         await message.answer("Вы успешно авторизованы!",
                              reply_markup=start_kb)
+        await state.clear()
     else:
-        await message.answer("Ошибка авторизации. Попробуйте снова.")
-
-    await state.clear()
+        await message.answer("Ошибка авторизации. Попробуйте снова.\n\nВведите ваш EMAIL")
+        await state.set_state(LoginState.login)
+        # await process_login(message, state)
 
 
 async def check_auth(user_id):
-    url = 'http://127.0.0.1:8000/check'
-
-    data = {
-        'id': user_id,
-    }
-
-    response = requests.post(url, json=data)
-
-    if response.json()['data'] == 'error':
-        return False
-    return True
+    # url = 'http://127.0.0.1:8000/check'
+    #
+    # data = {
+    #     'id': user_id,
+    # }
+    #
+    # response = requests.post(url, json=data)
+    #
+    # if response.json()['data'] == 'error':
+    #     return False
+    # return True
+    return False
 
 
 # Функция для аутентификации пользователя через API
 async def authenticate_user(user_id, login, password):
-    url = 'http://127.0.0.1:8000/log_in'
+    url = 'https://mc.dev.rand.agency/api/v1/get-access-token'
 
     data = {
-        'id': user_id,
-        "login": login,
-        "password": password
+        "email": login,
+        "password": password,
+        "device": "bot-v0.0.1"
     }
 
     response = requests.post(url, json=data)
+    try:
+        response = requests.post(url, json=data)
 
-    return response.json()['status'] == 'error'
+        if response.status_code == 200:
+            data = response.json()
+            print(data)
+            return data
+        else:
+            print("Error:", response.status_code, response.text)
+            return False
+    except:
+        return False
 
 
 @router.message(StateFilter(None), Command(commands=["cancel"]))

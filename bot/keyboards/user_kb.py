@@ -3,6 +3,11 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMar
 start_kb = ReplyKeyboardMarkup(keyboard=[
     [
         KeyboardButton(
+            text='Заполнить основную информацию'
+        )
+    ],
+    [
+        KeyboardButton(
             text='Сгенерировать эпитафию'
         ),
         KeyboardButton(
@@ -49,7 +54,10 @@ epitaph_kb = ReplyKeyboardMarkup(keyboard=[
 
 def generate_keyboard():
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Выбрать другой вопрос", callback_data="choose_question")],
+        # [InlineKeyboardButton(text=questions[0], callback_data=f"q_{questions[0]}")],
+        # [InlineKeyboardButton(text=questions[1], callback_data=f"q_{questions[1]}")],
+        # [InlineKeyboardButton(text=questions[2], callback_data=f"q_{questions[2]}")],
+        [InlineKeyboardButton(text="Заменить вопрос", callback_data="choose_question")],
         [InlineKeyboardButton(text="В главное меню", callback_data="main_menu")]
         # [InlineKeyboardButton(text="Изменить ответ на вопрос", callback_data="change_answer")]
     ])

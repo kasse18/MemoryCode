@@ -30,4 +30,4 @@ async def log_in(data):
 
 
 if __name__ == '__main__':
-    asyncio.run(log_in({"login": "admin@wadmin.ru", "password": "admin"}))
+    asyncio.run(log_in({"login": "team57@hackathon.ru", "password": "r3q4rLth"}))
