@@ -8,10 +8,10 @@ start_kb = ReplyKeyboardMarkup(keyboard=[
     ],
     [
         KeyboardButton(
-            text='Сгенерировать эпитафию'
+            text='Сгенерировать биографию'
         ),
         KeyboardButton(
-            text='Сгенерировать биографию'
+            text='В разработке'
         )
     ],
     [

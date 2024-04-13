@@ -1,3 +1,4 @@
+import json
 import random
 
 from aiogram import types, Router, F
@@ -14,7 +15,6 @@ router = Router()
 word_list = ['В главное меню']
 
 
-# TODO // Выбор случайного вопроса из БД
 async def get_random_question():
     questions = []
     question = random.choice([
@@ -55,7 +55,7 @@ async def change_answer(call: CallbackQuery, state: FSMContext):
     await ask_question(call.message, state)
 
 
-@router.message((F.text == 'Сгенерировать эпитафию'), StateFilter(None))
+@router.message((F.text == 'Сгенерировать биографию'), StateFilter(None))
 @router.message(F.text, StateFilter(None), Command("epitaph"))
 async def cmd_epitaph(message: Message, state: FSMContext):
     await message.answer(
@@ -63,8 +63,11 @@ async def cmd_epitaph(message: Message, state: FSMContext):
              "Вам предстоит ответить на 8 вопросов. Если ответ на вопрос вызывает трудности,"
              "его можно заменить с помощью кнопки под сообщением\n\n"
     )
+    stats = dict()
+    await state.update_data(fullinfo=stats)
     await state.set_state(QuestionStates.waiting_for_question)
     await state.update_data(answers_count=0)
+    await state.update_data(rand='')
     await ask_question(message, state)
 
 
@@ -74,21 +77,44 @@ async def ask_question(message: Message, state: FSMContext):
     user_id = message.from_user.id
 
     if random_question:
-        await add_user_question(user_id, random_question)
+        data = await state.get_data()
+        data['rand'] = random_question
+        await state.set_data(data)
+        # await add_user_question(user_id, random_question)
         await message.answer(random_question, reply_markup=generate_keyboard())
         await state.set_state(QuestionStates.asking_question)
 
 
 @router.message(QuestionStates.asking_question)
 async def answer_question(message: Message, state: FSMContext):
-    await message.answer("Ваш ответ сохранён!")
+    # await message.answer("Ваш ответ сохранён!")
     await state.set_state(QuestionStates.waiting_for_question)
     data = await state.get_data()
-    print(data['answers_count'])
+    stats = data['fullinfo']
+    number = data['answers_count']
+    stats[data['rand']] = message.text
     data['answers_count'] += 1
     await state.set_data(data)
-    if data['answers_count'] >= 8:
-        await message.answer("Вы ответили на все вопросы!")
+    # if data['answers_count'] == 8:
+    #     await message.answer("А теперь последний вопрос!\n\n"
+    #                          "Добавьте любую дополнительную информацию о данном человеке\n\n"
+    #                          "Это может быть факт, случай или воспоминание")
+    #
+    #     await state.set_state(QuestionStates.asking_question)
+    #     # await ask_question(message, state)
+
+    if data['answers_count'] == 8:
+        await message.answer("Спасибо за ваши ответы!\n\nСейчас на основе ваших ответов будет сгенерирована биография")
+        fullinfo = data['fullinfo']
+        with open('info.json') as f:
+            info = json.load(f)
+        print(fullinfo)
+        prompt = Prompt()
+        biography = prompt.get_biohraphy(fullinfo, info)
+        print(biography)
+        await message.answer("Биография сгенерирована!\n\n"
+                             f"{biography}")
+
         await state.clear()
     else:
         await state.set_state(QuestionStates.asking_question)
@@ -176,12 +202,14 @@ async def answer_base_question(message: Message, state: FSMContext):
     if data['answers_count'] >= 11:
         fullinfo = data['fullinfo']
         print(fullinfo)
+        with open('info.json', 'w') as f:
+            json.dump(fullinfo, f)
         prompt = Prompt()
         epitaph = prompt.get_epitaphy(fullinfo)
         print(epitaph)
         await message.answer("Вы ответили на все вопросы!\n\n"
                              "Я готов предложить вам 3 варианта эпитафии, основанные на основной информации\n"
-                             "После генерации биография, вы сможете сгенерировать улучшенную версию эпитафии\n\n"
+                             "После генерации биографии, вы сможете сгенерировать улучшенную версию эпитафии\n\n"
                              f"1️⃣\n{epitaph[0]}\n\n2️⃣\n{epitaph[1]}\n\n3️⃣\n{epitaph[2]}", reply_markup=start_kb)
 
         await state.clear()

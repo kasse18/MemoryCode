@@ -1,3 +1,5 @@
+import time
+
 import requests
 import os
 from dotenv import load_dotenv
@@ -10,8 +12,8 @@ API_KEY = os.environ.get("API_KEY")
 
 class Prompt:
     
-    def get_biography(self, d:dict, personal_data:dict):
-    
+    def get_biohraphy(self, s: dict, personal_data: dict):
+
         temperature = 0.2
 
         prompt_for_generate_biography = { 
@@ -24,13 +26,13 @@ class Prompt:
             "messages": [
                 {
                 "role": "system",
-                'text': f'данный текст - несколько блоков, которые являются ответами на вопросы о жизни некоторого человека. \
-                    твоя задача - составить на основе этих блоков очень трогательнуюбиографию, используя литературный стиль и\
-                          большое количество эпитетов. Часто повторяющиеся слова замени синонимами. Личные данные человека - {personal_data.items()}'   
+                'text': f'данный текст - несколько больших блоков, которые являются описанием жизни человека на основе ответов на вопросы о жизни некоторого человека. \
+                    твоя задача - составить на основе этих блоков очень трогательную биографию, используя литературный стиль и\
+                          большое количество эпитетов и выражений. Часто повторяющиеся слова замени синонимами. Минимальный размер абзаца - 50 слов. Личные данные человека - {personal_data.items()}'
                 },
                 {
                 "role": "user",
-                'text': ' '.join(d.values())
+                'text': ' '.join([f'Q-{i}' + f'A-{s[i]}' for i in s])
                 }
             ]
         }
@@ -44,7 +46,6 @@ class Prompt:
         response = requests.post(url, headers=headers, json=prompt_for_generate_biography)
         
         return response.json()['result']['alternatives'][0]['message']['text']
-    
 
     def get_epitaphy(self, personal_data:dict):
     # def get_epitaphy(self, biography:str):
@@ -82,6 +83,8 @@ class Prompt:
             }
 
             response = requests.post(url, headers=headers, json=prompt_for_generate_epitaphy)
+            time.sleep(2)
+            print(response.json())
             epitaphies.append(response.json()['result']['alternatives'][0]['message']['text'])
 
         return epitaphies

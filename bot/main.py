@@ -1,6 +1,7 @@
 import asyncpg
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
+
 from config import config
 from handlers import setup_routers, common, user
 from utils.commands import set_commands
@@ -27,7 +28,6 @@ async def create_pool():
 
 async def main():
     logging.basicConfig(level=logging.INFO)
-
     bot = Bot(token=config.bot.token)
     # pool_connect = await create_pool()
     # storage = await asyncpg.connect(pool_connect)
