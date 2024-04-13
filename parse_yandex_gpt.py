@@ -45,8 +45,9 @@ class Prompt:
         
         return response.json()['result']['alternatives'][0]['message']['text']
     
-    def get_epitaphy(self, biography:str):
 
+    def get_epitaphy(self, personal_data:dict):
+    # def get_epitaphy(self, biography:str):
         epitaphies = []
 
         # for temperature in [0.4, 0.6, 0.8]:
@@ -63,12 +64,13 @@ class Prompt:
                 "messages": [
                     {
                         "role": "system",
-                        'text': 'данный текст - биография некоторого человека. твоя задача - суммаризировать этот текст и составить на его основе очень трогательную эпитафию, используя большее количество эпитетов. ФИО человека - Иванов Иван Иванович.\
+                        'text': 'данный текст - личные данные некоторого человека. твоя задача - суммаризировать этот текст и составить на его основе очень трогательную эпитафию, \
+                            используя большее количество эпитетов.\
                             В ответе не форматируй текст. Ответ должен содержать ТОЛЬКО эпитафию. Так, чтобы твой ответ можно было сразу высечь на могильном камне.'
                     }, 
                     {
                         "role": "user",
-                        'text': biography
+                        'text': personal_data.items()
                     }, 
                 ]
             }
@@ -104,4 +106,4 @@ ne_bio = 'Родился в 1945г под Курском. В детстве лю
 
 # print(prptpr.get_epitaphy(bio))
 
-print(prptpr.get_biohraphy(ne_bio))
+# print(prptpr.get_epitaphy(bio))
