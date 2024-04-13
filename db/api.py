@@ -1,10 +1,16 @@
 import requests
 import json
 import asyncio
+import time
 
+token = ""
+slug = 0
+id = 0
+data_ = []
 
 
 async def log_in(data):
+    global token, slug, id
     url = 'https://mc.dev.rand.agency/api/v1/get-access-token'
 
     data = {
@@ -19,6 +25,8 @@ async def log_in(data):
         if response.status_code == 200:
             data = response.json()
             print(data)
+            token = data["access_token"]
+            print(token)
             return data
         else:
             print("Error:", response.status_code, response.text)
@@ -29,42 +37,84 @@ async def log_in(data):
 
 
 async def search_sp(data):
+    global token, slug, id
     url = 'https://mc.dev.rand.agency/api/cabinet/individual-pages'
 
     headers = {
         'Content-Type': 'application/json;charset=UTF-8',
-        'Authorization': 'Bearer 4268|PvotwqVbPog4XCOqHF1qLb8fhcIGjkx1gkFHBay5'
+        'Authorization': f'Bearer {token}'
     }
 
     try:
         response = requests.get(url, headers=headers)
 
         print(response.json())
-    except:
-        print(1)
+        slug = response.json()[0]["slug"]
+        print(slug)
+    except Exception as _ex:
+        print(_ex)
         return {"status": "error"}
 
 
 async def sp_svaz(data):
+    global token, slug, id, data_
     url = 'https://mc.dev.rand.agency/api/page/search'
 
     headers = {
         'Content-Type': 'application/json;charset=UTF-8',
-        'Authorization': 'Bearer 4268|PvotwqVbPog4XCOqHF1qLb8fhcIGjkx1gkFHBay5'
+        'Authorization': f'Bearer {token}'
     }
 
     data = {
-          "name":"",
-          "slug":"23332584",
-          "birthday_at":"",
-          "died_at":"",
-          "slugs":[],
-          "published_page":1,
-          "page":{"isTrusted":True}
-        }
+        "name": "",
+        "slug": slug,
+        "birthday_at": "",
+        "died_at": "",
+        "slugs": [],
+        "published_page": 1,
+        "page": {"isTrusted": True}
+    }
 
     try:
         response = requests.post(url, json=data, headers=headers)
+
+        if response.status_code == 200:
+            data = response.json()
+            data_ = data["data"][0]
+            id = data_["id"]
+            print(data_)
+            print(id)
+            return data
+        else:
+            print("Error:", response.status_code, response.text)
+            return {"status": "error"}
+    except Exception as _ex:
+        print(_ex)
+        return {"status": "error"}
+
+
+async def put_data(data):
+    global token, slug, id, data_
+    url = 'https://mc.dev.rand.agency/api/page/search'
+
+    headers = {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Authorization': f'Bearer {token}'
+    }
+
+    data = {
+        "id": id,
+        "name": "haha Виталий haha",
+        "surname": None,
+        "patronym": None,
+        "birthday_at": "1700-01-02 00:00:00",
+        "died_at": "1700-01-03 00:00:00",
+        "epitaph": "КРАТКАЯ ЭПИТАФИЯ",
+        "author_epitaph": "АВТОР ЭПИТАФИИ",
+    }
+
+    try:
+        response = requests.put(url, json=data, headers=headers)
 
         if response.status_code == 200:
             data = response.json()
@@ -79,7 +129,13 @@ async def sp_svaz(data):
 
 
 if __name__ == '__main__':
+    asyncio.run(log_in({"login": "team57@hackathon.ru", "password": "r3q4rLth"}))
+    time.sleep(1)
+    asyncio.run(search_sp({"login": "team57@hackathon.ru", "password": "r3q4rLth"}))
+    time.sleep(1)
     asyncio.run(sp_svaz({"login": "team57@hackathon.ru", "password": "r3q4rLth"}))
+    time.sleep(1)
+    asyncio.run(put_data({"login": "team57@hackathon.ru", "password": "r3q4rLth"}))
 
 # 4268|PvotwqVbPog4XCOqHF1qLb8fhcIGjkx1gkFHBay5
 # 'slug': 23332584  'lead_id': 37360005
