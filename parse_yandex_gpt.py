@@ -82,12 +82,50 @@ class Prompt:
             }
 
             response = requests.post(url, headers=headers, json=prompt_for_generate_epitaphy)
-            print(response.json())
+            epitaphies.append(response.json()['result']['alternatives'][0]['message']['text'])
+
+        return epitaphies
+
+    def change_epitaphy(self, biography:str, personal_data:dict):
+
+        epitaphies = []
+
+        for temperature in [0.3, 0.6, 0.9]:
+
+            prompt_for_generate_epitaphy = {
+                "modelUri": f"gpt://{FOLDER_ID}/yandexgpt-pro/latest",
+                "completionOptions": {
+                    "stream": False,
+                    "temperature": temperature,
+                    "maxTokens": "2000"
+                    }, 
+                "messages": [
+                    {
+                        "role": "system",
+                        'text': 'данный текст - личные данные некоторого человека. твоя задача - суммаризировать этот текст и составить на его основе очень трогательную эпитафию, \
+                            используя большее количество эпитетов.\
+                            В ответе не форматируй текст. Ответ должен содержать ТОЛЬКО эпитафию. Так, чтобы твой ответ можно было сразу высечь на могильном камне.'
+                    }, 
+                    {
+                        "role": "user",
+                        'text':'Персональная данные' + ''.join([f"{i[0]} {i[1]}." for i in personal_data.items()]) + f'Биография - {biography}'
+                    }, 
+                ]
+            }
+        
+            url = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Api-Key {API_KEY}"
+            }
+
+            response = requests.post(url, headers=headers, json=prompt_for_generate_epitaphy)
             epitaphies.append(response.json()['result']['alternatives'][0]['message']['text'])
 
         return epitaphies
 
 
+ 
 prptpr = Prompt()
  
 bio = 'Мой дедушка родился в городе Волжском Волгоградской области. Он был единственным ребёнком у своей мамы, но в семье также воспитывался его старший брат. Великая Отечественная война и её последствия пришлись на годы его детства. Единственным воспоминанием из детства у него остались три дня в окопе, проведенные без еды и воды. В основном его воспитывала мама и старший брат, так как родители были заняты работой. Дедушка всегда поддерживал тёплые отношения со своей мамой, а также со своим братом.\
@@ -106,6 +144,6 @@ ne_bio = 'Родился в 1945г под Курском. В детстве лю
 В старости он вёл активный образ жизни. Путешествовал по России и играл на баяне.\
 Он всегда подбадривал и мог поддержать. Все его называли по-разному: "Товарищ полковник", "Человек-энциклопедия", и, конечно, "любимый дедушка"'
 
-# print(prptpr.get_epitaphy(bio))
+# print(prptpr.get_biohraphy(ne_bio, {'fio': 'fio'}))
 
-# print(prptpr.get_epitaphy(bio))
+print(prptpr.get_epitaphy({'fio': 'fio'}))
