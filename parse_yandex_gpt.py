@@ -10,8 +10,8 @@ API_KEY = os.environ.get("API_KEY")
 
 class Prompt:
     
-    def get_biohraphy(self, s:str, personal_data:str):
-
+    def get_biography(self, d:dict, personal_data:dict):
+    
         temperature = 0.2
 
         prompt_for_generate_biography = { 
@@ -30,7 +30,7 @@ class Prompt:
                 },
                 {
                 "role": "user",
-                'text': s
+                'text': ' '.join(d.values())
                 }
             ]
         }
@@ -146,4 +146,4 @@ ne_bio = 'Родился в 1945г под Курском. В детстве лю
 
 # print(prptpr.get_biohraphy(ne_bio, {'fio': 'fio'}))
 
-print(prptpr.get_epitaphy({'fio': 'fio'}))
+# print(prptpr.get_epitaphy({'fio': 'fio'}))
