@@ -242,10 +242,41 @@ async def answer_base_question(message: Message, state: FSMContext):
         await message.answer("Вы ответили на все вопросы!\n\n"
                              "Я готов предложить вам 3 варианта эпитафии, основанные на основной информации\n"
                              "После генерации биографии, вы сможете сгенерировать улучшенную версию эпитафии\n\n"
-                             f"1️⃣\n{epitaph[0]}\n\n2️⃣\n{epitaph[1]}\n\n3️⃣\n{epitaph[2]}", reply_markup=start_kb)
+                             f"1️⃣\n{epitaph[0]}\n\n2️⃣\n{epitaph[1]}\n\n3️⃣\n{epitaph[2]}\n\n"
+                             f"Выберите эпитафию, которую хотите сохранить", reply_markup=epitaph_kb())
 
         await state.clear()
     else:
         await state.set_state(InfoState.asking_question)
         # await message.answer("Ответ принят, ожидайте следующий вопрос.")
         await ask_base_question(message, state)
+
+
+@router.callback_query(F.data == 'first_epitaph')
+async def main_menu(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    await state.clear()
+    await call.message.answer(
+        "Теперь вы можете начать процесс генерации биографии",
+        reply_markup=start_kb, disable_web_page_preview=True
+    )
+
+
+@router.callback_query(F.data == 'second_epitaph')
+async def main_menu(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    await state.clear()
+    await call.message.answer(
+        "Теперь вы можете начать процесс генерации биографии",
+        reply_markup=start_kb, disable_web_page_preview=True
+    )
+
+
+@router.callback_query(F.data == 'third_epitaph')
+async def main_menu(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    await state.clear()
+    await call.message.answer(
+        "Теперь вы можете начать процесс генерации биографии",
+        reply_markup=start_kb, disable_web_page_preview=True
+    )

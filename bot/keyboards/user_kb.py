@@ -43,15 +43,6 @@ my_profile_kb = ReplyKeyboardMarkup(keyboard=[
 ])
 
 
-epitaph_kb = ReplyKeyboardMarkup(keyboard=[
-    [
-        KeyboardButton(
-            text='Вернуться в главное меню'
-        )
-    ]
-], resize_keyboard=True, one_time_keyboard=True, input_field_placeholder="Выберите действие")
-
-
 def generate_keyboard():
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         # [InlineKeyboardButton(text=questions[0], callback_data=f"q_{questions[0]}")],
@@ -68,5 +59,14 @@ def new_epitaph_kb():
         [InlineKeyboardButton(text="Да", callback_data="epitaph_yes")],
         [InlineKeyboardButton(text="Нет", callback_data="epitaph_no")],
         [InlineKeyboardButton(text="В главное меню", callback_data="main_menu")]
+    ])
+    return keyboard
+
+
+def epitaph_kb():
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="1️", callback_data="first_epitaph")],
+        [InlineKeyboardButton(text="2️", callback_data="second_epitaph")],
+        [InlineKeyboardButton(text="3️", callback_data="third_epitaph")]
     ])
     return keyboard
