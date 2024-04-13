@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Dict
 import db
+import api
 
 app = FastAPI()
 
@@ -67,6 +68,26 @@ async def check(item: GetID):
 
 @app.post("/add_user_data")
 async def check_data(item: Dict):
-    status = await db.add_data_users(list(item.values()))
+    temp = api.log_in(item)
+
+    if "status" in temp:
+        return {"data": "error"}
+    else:
+        status = await db.add_data_users(list(item.values()))
 
     return {"data": status}
+
+
+# -----API-----
+
+@app.post("/log_in")
+async def log_in(item: Dict):
+    data = await api.log_in(item)
+    return data
+
+
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
