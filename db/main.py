@@ -78,6 +78,13 @@ async def check_data(item: Dict):
     return {"data": temp["access_token"]}
 
 
+
+@app.get("/random_quetions")
+async def random_quetions():
+    status = await db.random_quetions()
+    return {"data": status}
+
+
 # -----API-----
 
 @app.post("/log_in")
