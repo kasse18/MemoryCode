@@ -70,7 +70,7 @@ class Prompt:
                     }, 
                     {
                         "role": "user",
-                        'text': personal_data.items()
+                        'text': ''.join([f"{i[0]} {i[1]}." for i in personal_data.items()])
                     }, 
                 ]
             }
@@ -104,6 +104,6 @@ ne_bio = 'Родился в 1945г под Курском. В детстве лю
 В старости он вёл активный образ жизни. Путешествовал по России и играл на баяне.\
 Он всегда подбадривал и мог поддержать. Все его называли по-разному: "Товарищ полковник", "Человек-энциклопедия", и, конечно, "любимый дедушка"'
 
-# print(prptpr.get_epitaphy(bio))
+# print(prptpr.get_biohraphy(ne_bio, {'fio': 'fio'}))
 
-# print(prptpr.get_epitaphy(bio))
+print(prptpr.get_epitaphy({'fio': 'fio'}))
