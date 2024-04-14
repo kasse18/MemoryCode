@@ -1,6 +1,7 @@
 import json
 
 from aiogram import types, Router, F
+from aiogram.enums import ParseMode
 from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
@@ -131,7 +132,9 @@ async def cmd_cancel(message: Message, state: FSMContext):
 @router.message(F.text.lower() == "информация")
 async def cmd_info(message: Message, state: FSMContext):
     await message.answer(
-        text="Данный бот создан для бла-бла-бла",
+        text="Данный бот создан для помощи в генерации красивых эпитафий и биографий для страниц памяти\n\n"
+             f"Телеграм канал Ефима, где есть множество полезной информации: https://t.me/bot_Efim",
+        parse_mode='MARKDOWN',
         reply_markup=start_kb,
         resize_keyboard=ReplyKeyboardRemove()
     )

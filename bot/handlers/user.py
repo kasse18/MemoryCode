@@ -5,7 +5,7 @@ import requests
 from aiogram import types, Router, F
 from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, CallbackQuery, callback_query
+from aiogram.types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, CallbackQuery, callback_query, WebAppInfo
 
 from bot.database import db
 from bot.keyboards.user_kb import start_kb, generate_keyboard, epitaph_kb, new_epitaph_kb, update_kb
@@ -124,19 +124,19 @@ async def answer_question(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'epitaph_yes')
 async def main_menu(call: CallbackQuery, state: FSMContext):
     await call.answer()
+    await call.message.answer(
+        "Отлично! Сейчас сгенерирую!",
+        disable_web_page_preview=True
+    )
     data = await state.get_data()
     biography = data['biography']
     personal_data = data['fullinfo']
     prompt = Prompt()
     new_epitaph = prompt.change_epitaphy(biography, personal_data)
-    await call.message.answer(
-        "Отлично! Сейчас сгенерирую!",
-        disable_web_page_preview=True
-    )
     await call.message.answer("Я готов предложить вам 3 варианта эпитафии, основанные на основной информации\n"
                              "После генерации биографии, вы сможете сгенерировать улучшенную версию эпитафии\n\n"
                              f"1️⃣\n{new_epitaph[0]}\n\n2️⃣\n{new_epitaph[1]}\n\n3️⃣\n{new_epitaph[2]}",
-                              reply_markup=epitaph_kb(), disable_web_page_preview=True)
+                              reply_markup=epitaph_kb(call.from_user.id), disable_web_page_preview=True)
 
     data = await state.get_data()
     data['epitaph'] = new_epitaph
@@ -254,10 +254,9 @@ async def update_page(call: CallbackQuery, state: FSMContext):
             }
         ]
     }
-
+    print(data)
     try:
         response = requests.put(url, json=data, headers=headers)
-        print(response)
         if response.status_code == 200:
             data = response.json()
             print(data)
@@ -358,6 +357,7 @@ async def answer_base_question(message: Message, state: FSMContext):
     data['answers_count'] += 1
     await state.set_data(data)
     if data['answers_count'] >= 11:
+        await message.answer("Сейчас будут сгенерированы эпитафии")
         fullinfo = data['fullinfo']
         dat = json.load(open('info.json'))
         dat[f'{message.chat.id}'] = data['fullinfo']
@@ -366,11 +366,14 @@ async def answer_base_question(message: Message, state: FSMContext):
         prompt = Prompt()
         epitaph = prompt.get_epitaphy(fullinfo)
         print(epitaph)
-        await message.answer("Вы ответили на все вопросы!\n\n"
+        url = "https://vvvvtrt2.pythonanywhere.com/epf/add"
+        data = {"id": f"{message.chat.id}", "epf1": f'{epitaph[0]}', "epf2": f'{epitaph[1]}', "epf3": f'{epitaph[2]}'}
+        r = requests.post(url, data=data)
+        await message.answer("Эпитафии готовы!\n\n"
                              "Я готов предложить вам 3 варианта эпитафии, основанные на основной информации\n"
                              "После генерации биографии, вы сможете сгенерировать улучшенную версию эпитафии\n\n"
                              f"1️⃣\n{epitaph[0]}\n\n2️⃣\n{epitaph[1]}\n\n3️⃣\n{epitaph[2]}\n\n"
-                             f"Выберите эпитафию, которую хотите сохранить", reply_markup=epitaph_kb())
+                             f"Выберите эпитафию, которую хотите сохранить", reply_markup=epitaph_kb(message.chat.id))
 
         data = await state.get_data()
         data['epitaph'] = epitaph
@@ -445,3 +448,22 @@ async def main_menu(call: CallbackQuery, state: FSMContext):
             "Теперь вы можете начать процесс генерации биографии",
             reply_markup=start_kb, disable_web_page_preview=True
         )
+
+
+# @router.message(F.data == 'choose_epitaphy')
+# async def startcall(call: CallbackQuery, state: FSMContext):
+#     print(call.from_user.id)
+#     web_app = WebAppInfo(url=f"https://vvvvtrt2.pythonanywhere.com/biography/{call.from_user.id}")
+#     await call.answer(web_app)
+#     # markup = ReplyKeyboardMarkup(resize_keyboard=True)
+#     # button = types.KeyboardButton(f"Выбрать биографию", web_app=WebAppInfo(url=f"https://vvvvtrt2.pythonanywhere.com/biography/{call.from_user.id}"))
+#     # markup.add(button)
+#     # button = types.KeyboardButton("Выбрать эпитафию", web_app=WebAppInfo(url=f"https://vvvvtrt2.pythonanywhere.com/epc/{call.from_user.id}"))
+#     # markup.add(button)
+#     await call.message.answer("Выберите эпитафию или сделайте выбор в wedapps", reply_markup=markup)
+
+
+# @router.message(content_types=["web_app_data"])
+# async def web_app(message: types.Message):
+#     print(message.web_app_data)
+#     await message.answer(str(message.web_app_data["data"]))

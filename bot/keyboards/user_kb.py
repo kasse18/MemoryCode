@@ -1,4 +1,4 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 start_kb = ReplyKeyboardMarkup(keyboard=[
     [
@@ -60,11 +60,12 @@ def new_epitaph_kb():
     return keyboard
 
 
-def epitaph_kb():
+def epitaph_kb(user_id):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="1️", callback_data="first_epitaph")],
         [InlineKeyboardButton(text="2️", callback_data="second_epitaph")],
-        [InlineKeyboardButton(text="3️", callback_data="third_epitaph")]
+        [InlineKeyboardButton(text="3️", callback_data="third_epitaph")],
+        [InlineKeyboardButton(text="Open Webview", web_app=WebAppInfo(url=f"https://vvvvtrt2.pythonanywhere.com/epc/{user_id}"))]
     ])
     return keyboard
 
