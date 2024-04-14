@@ -1,12 +1,12 @@
 import json
 import random
-
+import pars
 import requests
 from aiogram import types, Router, F
 from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, CallbackQuery, callback_query, WebAppInfo
-
+from aiogram.types import FSInputFile
 from bot.database import db
 from bot.keyboards.user_kb import start_kb, generate_keyboard, epitaph_kb, new_epitaph_kb, update_kb
 from bot.states.userstate import InfoState, QuestionStates, LoginState
@@ -449,6 +449,17 @@ async def main_menu(call: CallbackQuery, state: FSMContext):
             reply_markup=start_kb, disable_web_page_preview=True
         )
 
+
+@router.message(F.photo)
+async def handle_photo(message: types.Message):
+    # Получаем объект "PhotoSize" с самым большим размером картинки
+    photo = message.photo[-1]
+    # Скачиваем картинку
+    await message.bot.download(file=photo.file_id, destination=f'/Users/artembelaev/PycharmProjects/GagarinHackBot/output_images/{message.from_user.id}.jpg')
+
+    pars.back_to_color(f'/Users/artembelaev/PycharmProjects/GagarinHackBot/output_images/{message.from_user.id}.jpg')
+    ph = FSInputFile(f"output_images/{message.from_user.id}.jpg")
+    await message.answer_photo(photo=ph)
 
 # @router.message(F.data == 'choose_epitaphy')
 # async def startcall(call: CallbackQuery, state: FSMContext):
