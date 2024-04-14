@@ -7,7 +7,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, CallbackQuery, callback_query
 
 from bot.database import db
-from bot.keyboards.user_kb import start_kb, generate_keyboard, epitaph_kb, new_epitaph_kb
+from bot.keyboards.user_kb import start_kb, generate_keyboard, epitaph_kb, new_epitaph_kb, update_kb
 from bot.states.userstate import InfoState, QuestionStates, LoginState
 from parse_yandex_gpt import Prompt
 
@@ -43,11 +43,6 @@ async def get_random_question():
     return question
 
 
-# TODO // Добавление ответа на вопрос от пользователя в БД
-async def add_user_question(user_id, question):
-    return 0
-
-
 @router.callback_query(F.data == 'change_answer')
 # state=QuestionStates.waiting_for_question
 async def change_answer(call: CallbackQuery, state: FSMContext):
@@ -55,7 +50,7 @@ async def change_answer(call: CallbackQuery, state: FSMContext):
     await ask_question(call.message, state)
 
 
-@router.message((F.text == 'Сгенерировать биографию'), StateFilter(None))
+@router.message((F.text == 'Шаг 2 - Сгенерировать биографию'), StateFilter(None))
 @router.message(F.text, StateFilter(None), Command("epitaph"))
 async def cmd_epitaph(message: Message, state: FSMContext):
     await message.answer(
@@ -140,18 +135,38 @@ async def main_menu(call: CallbackQuery, state: FSMContext):
     await call.message.answer("Я готов предложить вам 3 варианта эпитафии, основанные на основной информации\n"
                              "После генерации биографии, вы сможете сгенерировать улучшенную версию эпитафии\n\n"
                              f"1️⃣\n{new_epitaph[0]}\n\n2️⃣\n{new_epitaph[1]}\n\n3️⃣\n{new_epitaph[2]}",
-                              reply_markup=start_kb, disable_web_page_preview=True)
-    await state.clear()
+                              reply_markup=epitaph_kb(), disable_web_page_preview=True)
+
+    data = await state.get_data()
+    data['epitaph'] = new_epitaph
+    await state.set_data(data)
 
 
 @router.callback_query(F.data == 'epitaph_no')
 async def main_menu(call: CallbackQuery, state: FSMContext):
     await call.answer()
-    await state.clear()
     await call.message.answer(
-        "Хорошо!",
+        "Хорошо! Тогда мы можете обновить страницу памяти с помощью кнопки ниже.",
+        reply_markup=update_kb(), disable_web_page_preview=True
+    )
+
+
+@router.callback_query(F.data == 'update_page')
+async def update_page(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    data = await state.get_data()
+    personal_data = data['fullinfo']
+    biography = data['biography']
+    with open('epitaph.json') as f:
+        epitaph = json.load(f)
+    print(personal_data)
+    print(biography)
+    print(epitaph)
+    await call.message.answer(
+        "Страница Памяти обновлена!",
         reply_markup=start_kb, disable_web_page_preview=True
     )
+    await state.clear()
 
 
 @router.callback_query(F.data == 'choose_question', QuestionStates.asking_question)
@@ -193,7 +208,7 @@ async def get_base_question(number):
     return questions[number]
 
 
-@router.message(F.text == 'Заполнить основную информацию', StateFilter(None))
+@router.message(F.text == 'Шаг 1 - Заполнить основную информацию', StateFilter(None))
 @router.message(F.text, StateFilter(None), Command("baseinfo"))
 async def base_info(message: Message, state: FSMContext):
     await message.answer(
@@ -245,7 +260,10 @@ async def answer_base_question(message: Message, state: FSMContext):
                              f"1️⃣\n{epitaph[0]}\n\n2️⃣\n{epitaph[1]}\n\n3️⃣\n{epitaph[2]}\n\n"
                              f"Выберите эпитафию, которую хотите сохранить", reply_markup=epitaph_kb())
 
-        await state.clear()
+        data = await state.get_data()
+        data['epitaph'] = epitaph
+        await state.set_data(data)
+
     else:
         await state.set_state(InfoState.asking_question)
         # await message.answer("Ответ принят, ожидайте следующий вопрос.")
@@ -255,28 +273,58 @@ async def answer_base_question(message: Message, state: FSMContext):
 @router.callback_query(F.data == 'first_epitaph')
 async def main_menu(call: CallbackQuery, state: FSMContext):
     await call.answer()
-    await state.clear()
-    await call.message.answer(
-        "Теперь вы можете начать процесс генерации биографии",
-        reply_markup=start_kb, disable_web_page_preview=True
-    )
+    data = await state.get_data()
+    epitaph = data['epitaph'][0]
+    with open('epitaph.json', 'w') as f:
+        json.dump(epitaph, f)
+    try:
+        biography = data['biography']
+        if biography is not None:
+            await call.message.answer("Теперь мы можете обновить страницу памяти с помощью кнопки ниже.",
+                                      reply_markup=update_kb(), disable_web_page_preview=True)
+    except:
+        await state.clear()
+        await call.message.answer(
+            "Теперь вы можете начать процесс генерации биографии",
+            reply_markup=start_kb, disable_web_page_preview=True
+        )
 
 
 @router.callback_query(F.data == 'second_epitaph')
 async def main_menu(call: CallbackQuery, state: FSMContext):
     await call.answer()
-    await state.clear()
-    await call.message.answer(
-        "Теперь вы можете начать процесс генерации биографии",
-        reply_markup=start_kb, disable_web_page_preview=True
-    )
+    data = await state.get_data()
+    epitaph = data['epitaph'][1]
+    with open('epitaph.json', 'w') as f:
+        json.dump(epitaph, f)
+    try:
+        biography = data['biography']
+        if biography is not None:
+            await call.message.answer("Теперь мы можете обновить страницу памяти с помощью кнопки ниже.",
+                                        reply_markup=update_kb(), disable_web_page_preview=True)
+    except:
+        await state.clear()
+        await call.message.answer(
+            "Теперь вы можете начать процесс генерации биографии",
+            reply_markup=start_kb, disable_web_page_preview=True
+        )
 
 
 @router.callback_query(F.data == 'third_epitaph')
 async def main_menu(call: CallbackQuery, state: FSMContext):
     await call.answer()
-    await state.clear()
-    await call.message.answer(
-        "Теперь вы можете начать процесс генерации биографии",
-        reply_markup=start_kb, disable_web_page_preview=True
-    )
+    data = await state.get_data()
+    epitaph = data['epitaph'][2]
+    with open('epitaph.json', 'w') as f:
+        json.dump(epitaph, f)
+    try:
+        biography = data['biography']
+        if biography is not None:
+            await call.message.answer("Теперь мы можете обновить страницу памяти с помощью кнопки ниже.",
+                                      reply_markup=update_kb(), disable_web_page_preview=True)
+    except:
+        await state.clear()
+        await call.message.answer(
+            "Теперь вы можете начать процесс генерации биографии",
+            reply_markup=start_kb, disable_web_page_preview=True
+        )

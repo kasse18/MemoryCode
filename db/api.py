@@ -95,7 +95,7 @@ async def sp_svaz(data):
 
 async def put_data(data):
     global token, slug, id, data_
-    url = 'https://mc.dev.rand.agency/api/page/search'
+    url = f'https://mc.dev.rand.agency/api/page/{slug}'
 
     headers = {
         'Content-Type': 'application/json;charset=UTF-8',
@@ -144,7 +144,7 @@ async def put_data(data):
     }
 
     try:
-        response = requests.post(url, json=data, headers=headers)
+        response = requests.put(url, json=data, headers=headers)
 
         if response.status_code == 200:
             data = response.json()

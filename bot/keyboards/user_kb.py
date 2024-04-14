@@ -3,20 +3,17 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMar
 start_kb = ReplyKeyboardMarkup(keyboard=[
     [
         KeyboardButton(
-            text='Заполнить основную информацию'
+            text='Шаг 1 - Заполнить основную информацию'
         )
     ],
     [
         KeyboardButton(
-            text='Сгенерировать биографию'
-        ),
+            text='Шаг 2 - Сгенерировать биографию'
+        )
+    ],
+    [
         KeyboardButton(
             text='В разработке'
-        )
-    ],
-    [
-        KeyboardButton(
-            text='Мой профиль'
         ),
         KeyboardButton(
             text='Информация'
@@ -68,5 +65,12 @@ def epitaph_kb():
         [InlineKeyboardButton(text="1️", callback_data="first_epitaph")],
         [InlineKeyboardButton(text="2️", callback_data="second_epitaph")],
         [InlineKeyboardButton(text="3️", callback_data="third_epitaph")]
+    ])
+    return keyboard
+
+
+def update_kb():
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text='Обновить СП', callback_data="update_page")]
     ])
     return keyboard
