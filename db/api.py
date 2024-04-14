@@ -102,19 +102,49 @@ async def put_data(data):
         'Authorization': f'Bearer {token}'
     }
 
+    null = None
+    true = True
+    false = False
+
     data = {
-        "id": id,
-        "name": "haha Виталий haha",
-        "surname": None,
-        "patronym": None,
-        "birthday_at": "1700-01-02 00:00:00",
-        "died_at": "1700-01-03 00:00:00",
-        "epitaph": "КРАТКАЯ ЭПИТАФИЯ",
-        "author_epitaph": "АВТОР ЭПИТАФИИ",
+
+    "id": id,
+    "name": "haha Виталий haha",
+    "surname": null,
+    "patronym": null,
+    "birthday_at": "1700-01-02 00:00:00",
+    "died_at": "1700-01-03 00:00:00",
+    "epitaph": "КРАТКАЯ ЭПИТАФИЯ",
+    "author_epitaph": "АВТОР ЭПИТАФИИ",
+    "video_links": [
+        {
+            "url": "https://www.youtube.com/watch?v=figIDuctqMY",
+            "enabled": true
+        }
+    ],
+    "external_links": [
+        {
+            "link": "https://www.youtube.com/watch?v=figIDuctqMY",
+            "link_name": "Блондинка за углом - YouTube",
+            "enabled": true
+        }
+    ],
+    "published_page": true,
+    "accessible_by_password": false,
+    "access_password": null,
+    "user_id": 6,
+    "master_id": null,
+    "page_type_id": 1,
+    "created_at": "2023-12-28T06:36:02.000000Z",
+    "updated_at": "2023-12-28T07:17:13.000000Z",
+    "deleted_at": null,
+    "slug": slug,
+    "burial_id": null,
+    "price": null,
     }
 
     try:
-        response = requests.put(url, json=data, headers=headers)
+        response = requests.post(url, json=data, headers=headers)
 
         if response.status_code == 200:
             data = response.json()
