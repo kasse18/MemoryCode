@@ -27,7 +27,7 @@ async def cmd_start(message: Message, state: FSMContext):
         await state.set_state(LoginState.login)
     else:
         await message.answer(
-            "Выберите действие!",
+            "Давайте приступим к заполнению Страницы Памяти!",
             reply_markup=start_kb,
             resize_keyboard=ReplyKeyboardRemove()
         )
@@ -64,18 +64,12 @@ async def process_password(message: Message, state: FSMContext):
 
 
 async def check_auth(user_id):
-    # url = 'http://127.0.0.1:8000/check'
-    #
-    # data = {
-    #     'id': user_id,
-    # }
-    #
-    # response = requests.post(url, json=data)
-    #
-    # if response.json()['data'] == 'error':
-    #     return False
-    # return True
-    return False
+    with open('token.json') as f:
+        token = json.load(f)
+        if f'{user_id}' in token:
+            return True
+        else:
+            return False
 
 
 # Функция для аутентификации пользователя через API
