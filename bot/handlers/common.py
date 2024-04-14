@@ -94,14 +94,21 @@ async def authenticate_user(user_id, login, password):
 
         if response.status_code == 200:
             data = response.json()
-            with open('token.json', 'w') as f:
-                json.dump(data['access_token'], f)
             print(data)
+            token = data['access_token']
+            print(token)
+            dat = json.load(open('token.json'))
+            dat[f'{user_id}'] = token
+            with open('token.json', 'w') as f:
+                json.dump(dat, f)
             return data
         else:
             print("Error:", response.status_code, response.text)
             return False
-    except:
+    except requests.exceptions:
+        print("Error:", response.status_code, response.text)
+        print("Error:")
+        print('exception')
         return False
 
 

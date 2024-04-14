@@ -104,7 +104,7 @@ async def answer_question(message: Message, state: FSMContext):
         await message.answer("Спасибо за ваши ответы!\n\nСейчас на основе ваших ответов будет сгенерирована биография")
         fullinfo = data['fullinfo']
         with open('info.json') as f:
-            info = json.load(f)
+            info = json.load(f)[f'{message.chat.id}']
         print(fullinfo)
         prompt = Prompt()
         biography = prompt.get_biohraphy(fullinfo, info)
@@ -158,11 +158,12 @@ async def update_page(call: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     biography = data['biography']
     with open('epitaph.json') as f:
-        epitaph = json.load(f)
+        epitaph_data = json.load(f)
+        epitaph = epitaph_data[f'{call.from_user.id}']
     with open('info.json') as f:
-        personal_data = json.load(f)
+        personal_data = json.load(f)[f'{call.from_user.id}']
     with open('token.json') as f:
-        token = json.load(f)
+        token = json.load(f)[f'{call.from_user.id}']
     print(personal_data)
     name, surname, patronymic = personal_data['ФИО'].split(' ')
     birthday = personal_data['Дата рождения'].split('.')
@@ -205,6 +206,10 @@ async def update_page(call: CallbackQuery, state: FSMContext):
     null = None
     true = True
     false = False
+    st = birthday.split('-')
+    start = {'day:': f'{st[2]}', 'month:': f'{st[1]}', 'year:': f'{st[0]}'}
+    dt = deathday.split('-')
+    end = {'day:': f'{dt[2]}', 'month:': f'{dt[1]}', 'year:': f'{dt[0]}'}
     print(birthday, deathday)
     data = {
 
@@ -240,6 +245,8 @@ async def update_page(call: CallbackQuery, state: FSMContext):
         "slug": slug,
         "burial_id": null,
         "price": null,
+        'start': start,
+        'end': end,
         "biographies": [
             {
                 "title": f"{name} {surname} {patronymic}",
@@ -352,9 +359,10 @@ async def answer_base_question(message: Message, state: FSMContext):
     await state.set_data(data)
     if data['answers_count'] >= 11:
         fullinfo = data['fullinfo']
-        print(fullinfo)
+        dat = json.load(open('info.json'))
+        dat[f'{message.chat.id}'] = data['fullinfo']
         with open('info.json', 'w') as f:
-            json.dump(fullinfo, f)
+            json.dump(dat, f)
         prompt = Prompt()
         epitaph = prompt.get_epitaphy(fullinfo)
         print(epitaph)
@@ -378,9 +386,10 @@ async def answer_base_question(message: Message, state: FSMContext):
 async def main_menu(call: CallbackQuery, state: FSMContext):
     await call.answer()
     data = await state.get_data()
-    epitaph = data['epitaph'][0]
+    dat = json.load(open('epitaph.json'))
+    dat[f'{call.from_user.id}'] = data['epitaph'][0]
     with open('epitaph.json', 'w') as f:
-        json.dump(epitaph, f)
+        json.dump(dat, f)
     try:
         biography = data['biography']
         if biography is not None:
@@ -398,9 +407,10 @@ async def main_menu(call: CallbackQuery, state: FSMContext):
 async def main_menu(call: CallbackQuery, state: FSMContext):
     await call.answer()
     data = await state.get_data()
-    epitaph = data['epitaph'][1]
+    dat = json.load(open('epitaph.json'))
+    dat[f'{call.from_user.id}'] = data['epitaph'][1]
     with open('epitaph.json', 'w') as f:
-        json.dump(epitaph, f)
+        json.dump(dat, f)
     try:
         biography = data['biography']
         if biography is not None:
@@ -417,10 +427,13 @@ async def main_menu(call: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'third_epitaph')
 async def main_menu(call: CallbackQuery, state: FSMContext):
     await call.answer()
+    print(call.from_user.id)
     data = await state.get_data()
-    epitaph = data['epitaph'][2]
+    # epitaph = {f'{call.from_user.id}', f'{data['epitaph'][2]}'}
+    dat = json.load(open('epitaph.json'))
+    dat[f'{call.from_user.id}'] = data['epitaph'][2]
     with open('epitaph.json', 'w') as f:
-        json.dump(epitaph, f)
+        json.dump(dat, f)
     try:
         biography = data['biography']
         if biography is not None:
