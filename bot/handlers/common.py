@@ -1,3 +1,5 @@
+import json
+
 from aiogram import types, Router, F
 from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
@@ -20,7 +22,7 @@ async def cmd_start(message: Message, state: FSMContext):
             "а также сгенерировать эпитафию и/или биографию для страницы памяти.\n\n")
     if not is_authenticated:
         await message.answer("Вы не авторизованы.\n\nДля входа в аккаунт Введите вашу электронную почту\n\n"
-                             "Для теста: `team57@hackathon.ru`")
+                             "Для теста: `team57@hackathon.ru`", parse_mode='MARKDOWN')
 
         await state.set_state(LoginState.login)
     else:
@@ -35,7 +37,7 @@ async def cmd_start(message: Message, state: FSMContext):
 async def process_login(message: Message, state: FSMContext):
     await state.update_data(login=message.text)
     await message.answer("Теперь введите ваш пароль.\n\n"
-                         "Для теста: `r3q4rLth`")
+                         "Для теста: `r3q4rLth`", parse_mode='MARKDOWN')
 
     await state.set_state(LoginState.password)
 
@@ -56,7 +58,7 @@ async def process_password(message: Message, state: FSMContext):
         await state.clear()
     else:
         await message.answer("Ошибка авторизации. Попробуйте снова.\n\nВведите вашу электронную почту\n\n"
-                             "Для теста: `team57@hackathon.ru`")
+                             "Для теста: `team57@hackathon.ru`", parse_mode='MARKDOWN')
         await state.set_state(LoginState.login)
         # await process_login(message, state)
 
@@ -92,6 +94,8 @@ async def authenticate_user(user_id, login, password):
 
         if response.status_code == 200:
             data = response.json()
+            with open('token.json', 'w') as f:
+                json.dump(data['access_token'], f)
             print(data)
             return data
         else:

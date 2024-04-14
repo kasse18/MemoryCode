@@ -1,6 +1,7 @@
 import json
 import random
 
+import requests
 from aiogram import types, Router, F
 from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
@@ -155,18 +156,121 @@ async def main_menu(call: CallbackQuery, state: FSMContext):
 async def update_page(call: CallbackQuery, state: FSMContext):
     await call.answer()
     data = await state.get_data()
-    personal_data = data['fullinfo']
     biography = data['biography']
     with open('epitaph.json') as f:
         epitaph = json.load(f)
+    with open('info.json') as f:
+        personal_data = json.load(f)
+    with open('token.json') as f:
+        token = json.load(f)
     print(personal_data)
-    print(biography)
-    print(epitaph)
-    await call.message.answer(
-        "Страница Памяти обновлена!",
-        reply_markup=start_kb, disable_web_page_preview=True
-    )
-    await state.clear()
+    name, surname, patronymic = personal_data['ФИО'].split(' ')
+    birthday = personal_data['Дата рождения'].split('.')
+    birthday = f'{birthday[2]}-{birthday[1]}-{birthday[0]}'
+    deathday = personal_data['Дата смерти'].split('.')
+    deathday = f'{deathday[2]}-{deathday[1]}-{deathday[0]}'
+    birthplace = personal_data['Место рождения']
+    deatphplace = personal_data['Место смерти']
+    kids = personal_data['Дети']
+    partner = personal_data['Супруг(а)']
+    nationality = personal_data['Гражданство']
+    graduation = personal_data['Образование']
+    profession = personal_data['Род деятельности']
+    awards = personal_data['Премии, достижения, награды']
+    print(name, surname, patronymic, birthday, deathday, birthplace, deatphplace, kids, partner, nationality, graduation, profession, awards)
+
+    url = 'https://mc.dev.rand.agency/api/cabinet/individual-pages'
+
+    headers = {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Authorization': f'Bearer {token}'
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+
+        print(response.json())
+        slug = response.json()[0]["slug"]
+        print(slug)
+    except Exception as _ex:
+        print(_ex)
+
+    url = f'https://mc.dev.rand.agency/api/page/{slug}'
+
+    headers = {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Authorization': f'Bearer {token}'
+    }
+
+    null = None
+    true = True
+    false = False
+    print(birthday, deathday)
+    data = {
+
+        "id": 0,
+        "name": f'{name} {surname} {patronymic}',
+        "surname": surname,
+        "patronym": patronymic,
+        "birthday_at": f"{birthday} 00:00:00",
+        "died_at": f"{deathday} 00:00:00",
+        "epitaph": f"{epitaph}",
+        "author_epitaph": "Ефим Памятов",
+        "video_links": [
+            {
+                "url": null,
+                "enabled": false
+            }
+        ],
+        "external_links": [
+            {
+                "link": null,
+                "enabled": false
+            }
+        ],
+        "published_page": true,
+        "accessible_by_password": false,
+        "access_password": null,
+        "user_id": 6,
+        "master_id": null,
+        "page_type_id": 1,
+        "created_at": "2023-12-28T06:36:02.000000Z",
+        "updated_at": "2023-12-28T07:17:13.000000Z",
+        "deleted_at": null,
+        "slug": slug,
+        "burial_id": null,
+        "price": null,
+        "biographies": [
+            {
+                "title": f"{name} {surname} {patronymic}",
+                "description": f'{biography}'
+            }
+        ]
+    }
+
+    try:
+        response = requests.put(url, json=data, headers=headers)
+        print(response)
+        if response.status_code == 200:
+            data = response.json()
+            print(data)
+
+            await call.message.answer(
+                "Страница памяти обновлена!",
+                reply_markup=start_kb, disable_web_page_preview=True
+            )
+            await state.clear()
+        else:
+            print("Error:", response.status_code, response.text)
+            return {"status": "error"}
+    except Exception as _ex:
+        print(_ex)
+
+        await call.message.answer(
+            "Не удалось обновить страницу памяти",
+            reply_markup=start_kb, disable_web_page_preview=True
+        )
+        await state.clear()
 
 
 @router.callback_query(F.data == 'choose_question', QuestionStates.asking_question)
