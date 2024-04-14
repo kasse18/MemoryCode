@@ -10,7 +10,7 @@ def back_to_color(image):
     caffe_model = "./colorization_models/colorization_release_v2.caffemodel"
     pts_npy = "./colorization_models/pts_in_hull.npy"
 
-    test_image = "./input_images/" + image
+    test_image = image
 
     # Загрузка нашей модели
     net = cv2.dnn.readNetFromCaffe(prototxt, caffe_model)
@@ -56,7 +56,7 @@ def back_to_color(image):
     RGB_BGR = cv2.cvtColor(RGB_colored, cv2.COLOR_RGB2BGR)
 
     # Сохранение изображения в нужном месте
-    cv2.imwrite("./output_images/" + image, RGB_BGR)
+    cv2.imwrite(image, RGB_BGR)
 
 
 if __name__ == '__main__':
